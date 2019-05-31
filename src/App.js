@@ -1,24 +1,40 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Route, Switch } from 'react-router-dom';
+
+import PaletteList from './components/PaletteList';
+import Palette from './components/Palette';
+import SingleColorPalette from './components/SingleColorPalette';
+import { generatePalette } from './lib/colorHelper';
+
+
+import seedColors from './seedColors';
 
 function App() {
+  const findPalette = (id) => (seedColors.filter(palette => palette.id === id)[0]);
+  
+  const toPalette = (routeProps) => {
+    const palette = findPalette(routeProps.match.params.id);
+    if (palette)
+      return <Palette {...generatePalette(palette)} />
+    else
+      return <h1>Not found</h1>
+  }
+  
+  const toSingleColorPalette = (routeProps) => {
+    const palette = findPalette(routeProps.match.params.paletteId);
+    if (palette)
+      return <SingleColorPalette colorId={routeProps.match.params.colorId} {...generatePalette(palette)} />
+    else
+      return <h1>Not found</h1>
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Switch>
+        <Route exact path='/' render={routeProps => <PaletteList {...routeProps} palettes={seedColors} />} />
+        <Route exact path='/palette/:id' render={toPalette} />
+        <Route exact path='/palette/:paletteId/:colorId' render={toSingleColorPalette} />
+      </Switch>
     </div>
   );
 }
